@@ -14,6 +14,7 @@ license-file.workspace = true
 # Browser-only tests, run in headless Chrome by `cargo make ci-web-test`.
 [target.'cfg(all(target_family = "wasm", target_vendor = "unknown", target_os = "unknown"))'.dev-dependencies]
 surrealdb = { workspace = true, features = ["kv-mem"] }
+surrealdb-core = { workspace = true, features = ["kv-mem"] }
 wasm-bindgen-test.workspace = true
 
 [lints]

@@ -7328,6 +7328,7 @@ name = "surrealdb-web-tests"
 version = "3.3.0-nightly"
 dependencies = [
  "surrealdb",
+ "surrealdb-core",
  "wasm-bindgen-test",
 ]
 
