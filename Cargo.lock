@@ -7329,7 +7329,10 @@ version = "3.3.0-nightly"
 dependencies = [
  "surrealdb",
  "surrealdb-core",
+ "surrealdb-types",
+ "wasm-bindgen-futures",
  "wasm-bindgen-test",
+ "web-sys",
 ]
 
 [[package]]
