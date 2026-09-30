@@ -650,7 +650,7 @@ mod tests {
 
 	async fn open_store(dir: &OsPath, query: &str) -> (FileStore, PathBuf) {
 		let root = canonical(dir).await;
-		let cfg = Config::for_test(vec![root.clone()]);
+		let cfg = Config::default().with_bucket_list(vec![root.clone()]);
 		let opts = FileStore::parse_url(&build_url(&root, query), &cfg)
 			.await
 			.expect("parse_url should succeed for an allowlisted path")
@@ -820,7 +820,7 @@ mod tests {
 		let bucket = parent.join("bucket");
 		std::fs::create_dir(&bucket).unwrap();
 		std::fs::write(parent.join("outside.txt"), b"secret").unwrap();
-		let cfg = Config::for_test(vec![parent.clone()]);
+		let cfg = Config::default().with_bucket_list(vec![parent.clone()]);
 		let opts = FileStore::parse_url(&build_url(&bucket, ""), &cfg).await.unwrap().unwrap();
 		let store = FileStore::new(opts, cfg);
 
@@ -962,7 +962,7 @@ mod tests {
 	async fn parse_url_validates_the_root() {
 		let dir = TempDir::new().unwrap();
 		let root = canonical(dir.path()).await;
-		let cfg = Config::for_test(vec![root.join("allowed")]);
+		let cfg = Config::default().with_bucket_list(vec![root.join("allowed")]);
 
 		// A missing root inside the allowlist is created.
 		let created = root.join("allowed/new");

@@ -17,6 +17,7 @@ mod controller;
 use anyhow::{Result, bail};
 pub(crate) use controller::BucketController;
 pub use controller::BucketOperation;
+use path_clean::PathClean;
 
 use crate::buc::store::ObjectStore;
 #[cfg(file_buckets)]
@@ -46,15 +47,11 @@ impl cnf::Config for Config {
 	}
 }
 
-#[cfg(test)]
 impl Config {
-	/// Test-only helper for building a `Config` with a custom bucket allowlist
-	/// without going through the `cnf::Config` parser.
-	pub(crate) fn for_test(bucket_list: Vec<PathBuf>) -> Self {
-		Self {
-			bucket_list,
-			..Self::default()
-		}
+	/// Replaces the directories file buckets may use.
+	pub(crate) fn with_bucket_list(mut self, bucket_list: Vec<PathBuf>) -> Self {
+		self.bucket_list = bucket_list.into_iter().map(|path| path.clean()).collect();
+		self
 	}
 }
 

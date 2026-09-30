@@ -5,7 +5,6 @@
 #![recursion_limit = "256"]
 #![allow(clippy::unwrap_used)]
 
-use surrealdb_core::cnf::ConfigMap;
 use surrealdb_core::dbs::capabilities::{ExperimentalTarget, Targets};
 use surrealdb_core::dbs::{Capabilities, Session};
 use surrealdb_core::kvs::Datastore;
@@ -17,9 +16,7 @@ pub const DIR: &str = "surrealdb-web-tests";
 /// Opens an in-memory datastore whose file buckets may use [`DIR`].
 pub async fn datastore() -> Datastore {
 	Datastore::builder()
-		.with_config(
-			ConfigMap::empty().with_key_value("bucket_folder_allowlist", format!("/{DIR}")),
-		)
+		.with_bucket_folder_allowlist(Some(vec![format!("/{DIR}").into()]))
 		.with_capabilities(
 			Capabilities::all()
 				.with_experimental(Targets::Some([ExperimentalTarget::Files].into())),

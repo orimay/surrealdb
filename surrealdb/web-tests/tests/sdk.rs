@@ -6,7 +6,8 @@
 use surrealdb::Surreal;
 use surrealdb::engine::local::Mem;
 use surrealdb::opt::Config;
-use surrealdb::opt::capabilities::Capabilities;
+use surrealdb::opt::capabilities::{Capabilities, ExperimentalFeature};
+use surrealdb_web_tests::DIR;
 use wasm_bindgen_test::{wasm_bindgen_test, wasm_bindgen_test_configure};
 
 wasm_bindgen_test_configure!(run_in_browser);
@@ -27,4 +28,21 @@ async fn capabilities_apply() {
 	db.use_ns("test").use_db("test").await.unwrap();
 	let err = db.query("string::len('abc')").await.unwrap().take::<Option<i64>>(0).unwrap_err();
 	assert!(err.to_string().contains("not allowed"), "{err}");
+}
+
+#[wasm_bindgen_test]
+async fn file_buckets_use_allowed_folders() {
+	let capabilities =
+		Capabilities::new().with_experimental_feature_allowed(ExperimentalFeature::Files);
+	let config =
+		Config::new().capabilities(capabilities).bucket_folder_allowlist([format!("/{DIR}")]);
+	let db = Surreal::new::<Mem>(config).await.unwrap();
+	db.use_ns("test").use_db("test").await.unwrap();
+	let sql = format!(
+		"DEFINE BUCKET b BACKEND 'file:///{DIR}/' + <string> rand::uuid();
+		file::put(f\"b:/a.txt\", 'x');
+		file::get(f\"b:/a.txt\").to_string();"
+	);
+	let mut res = db.query(sql).await.unwrap().check().unwrap();
+	assert_eq!(res.take::<Option<String>>(2).unwrap().as_deref(), Some("x"));
 }
